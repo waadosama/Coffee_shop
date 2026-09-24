@@ -42,7 +42,6 @@ class EnergyMachinePoster extends StatelessWidget {
   }
 }
 
-
 class DrinkPosterCard extends StatelessWidget {
   const DrinkPosterCard({
     super.key,

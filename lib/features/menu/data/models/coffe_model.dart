@@ -12,12 +12,13 @@ class CoffeeModel extends Coffee {
     final rawId = json['id'];
     final ingredients = json['ingredients'];
     final price = json['price'];
-    final description = json['description']?.toString() ??
+    final description =
+        json['description']?.toString() ??
         (ingredients is List
             ? ingredients.join(', ')
             : price == null
-                ? ''
-                : 'Hot coffee - \$${_formatPrice(price)}');
+            ? ''
+            : 'Hot coffee - \$${_formatPrice(price)}');
     final name = (json['name'] ?? json['title'] ?? 'Coffee').toString();
 
     return CoffeeModel(
