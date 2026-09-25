@@ -7,7 +7,7 @@ import 'features/menu/data/datasources/remote.dart';
 import 'features/menu/data/repositories/coffe_imp.dart';
 import 'features/menu/domain/usecases/use.dart';
 import 'features/menu/presentation/cubic/cubic.dart';
-import 'features/menu/presentation/pages/menu_page.dart';
+import 'features/menu/presentation/pages/intro_page.dart';
 
 void main() {
   runApp(const RwaqApp());
@@ -29,7 +29,7 @@ class RwaqApp extends StatelessWidget {
           final repo = CoffeeRepositoryImpl(remote);
           return CoffeeCubit(GetHotCoffee(repo))..fetchHotCoffee();
         },
-        child: const MenuPage(),
+        child: const IntroPage(),
       ),
     );
   }

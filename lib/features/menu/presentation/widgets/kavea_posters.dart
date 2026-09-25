@@ -151,12 +151,11 @@ class DrinkPosterCard extends StatelessWidget {
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       textAlign: TextAlign.center,
-      style: GoogleFonts.specialElite(
+      style: GoogleFonts.cairo(
         color: AppColors.darkEspresso,
-        fontSize: 20,
+        fontSize: 18,
+        fontWeight: FontWeight.w700,
         height: 1,
-        letterSpacing: 0.2,
-        fontWeight: FontWeight.bold,
       ),
     ),
   ),

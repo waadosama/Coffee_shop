@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 
-/// good.companycafé inspired palette:
-/// Deep chocolate espresso brown, soft pastel pink, powder blue, and cream paper.
 class AppColors {
   AppColors._();
 
