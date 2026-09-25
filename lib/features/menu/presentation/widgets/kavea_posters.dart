@@ -46,129 +46,86 @@ class DrinkPosterCard extends StatelessWidget {
   const DrinkPosterCard({
     super.key,
     required this.coffee,
-    required this.index,
   });
 
   final Coffee coffee;
-  final int index;
 
   @override
   Widget build(BuildContext context) {
-    final isEven = index.isEven;
-
-    final cardBg = isEven
-        ? const Color.fromARGB(255, 118, 77, 44)
-        : const Color.fromARGB(255, 163, 121, 107);
-
-    const borderAccent = Color.fromARGB(255, 108, 76, 64);
-
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        color: AppColors.creamPaper,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(
-          color: borderAccent,
-          width: 1,
-        ),
-        boxShadow: const [
-          BoxShadow(
-            color: AppColors.darkEspresso,
-            offset: Offset(2, 2),
-            blurRadius: 4,
-          ),
-        ],
+    return Card(
+      elevation: 4,
+      shadowColor: AppColors.darkEspresso.withValues(alpha: 0.3),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(7),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Image
-            Expanded(
-              flex: 5,
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image.network(
-                    coffee.image,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return ColoredBox(
-                        color: cardBg,
-                        child: const Center(
-                          child: SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CustomPaint(
-                              painter: EspressoMachinePainter(
-                                color: AppColors.darkEspresso,
-                              ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Image section
+          Expanded(
+            flex: 5,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                Image.network(
+                  coffee.image,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return ColoredBox(
+                      color: AppColors.leather,
+                      child: const Center(
+                        child: SizedBox(
+                          width: 30,
+                          height: 30,
+                          child: CustomPaint(
+                            painter: EspressoMachinePainter(
+                              color: AppColors.creamPaper,
                             ),
                           ),
                         ),
-                      );
-                    },
-                  ),
-
-                  Positioned.fill(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          colors: [
-                            Colors.transparent,
-                            const Color.fromARGB(
-                              255,
-                              172,
-                              69,
-                              28,
-                            ).withValues(alpha: 0.2),
-                          ],
-                        ),
+                      ),
+                    );
+                  },
+                ),
+                // Subtle gradient overlay
+                Positioned.fill(
+                  child: DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          Colors.transparent,
+                          AppColors.darkEspresso.withValues(alpha: 0.5),
+                        ],
                       ),
                     ),
                   ),
-                ],
+                ),
+              ],
+            ),
+          ),
+
+          // Name section
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            color: AppColors.creamPaper,
+            child: Text(
+              coffee.name.toUpperCase(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: GoogleFonts.cairo(
+                color: AppColors.darkEspresso,
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                height: 1.1,
+                letterSpacing: 0.5,
               ),
             ),
-
-            // Text
-            Expanded(
-              flex: 2,
-              child: Container(
-                color: cardBg,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 5,
-                  vertical: 4,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-  Center(
-    child: Text(
-      coffee.name.toUpperCase(),
-      maxLines: 1,
-      overflow: TextOverflow.ellipsis,
-      textAlign: TextAlign.center,
-      style: GoogleFonts.cairo(
-        color: AppColors.darkEspresso,
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        height: 1,
-      ),
-    ),
-  ),
-
-  const Spacer(),
-
-  const SizedBox(height: 2),
-],
-                ),
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

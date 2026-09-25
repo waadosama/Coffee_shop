@@ -38,11 +38,12 @@ class MenuPage extends StatelessWidget {
                               color: Color.fromARGB(255, 66, 31, 5),
                               shape: BoxShape.circle,
                             ),
-                            child: const Center(
-                              child: Icon(
-                                Icons.coffee_outlined,
-                                color: Color.fromARGB(255, 197, 164, 153),
-                                size: 28,
+                            child: ClipOval(
+                              child: Image(
+                                image: AssetImage('assets/images/coffee-beans.png'),
+                                width: 44,
+                                height: 44,
+                                fit: BoxFit.cover,
                               ),
                             ),
                           ),
@@ -166,7 +167,6 @@ class MenuPage extends StatelessWidget {
                       delegate: SliverChildBuilderDelegate((context, index) {
                         return DrinkPosterCard(
                           coffee: drinks[index],
-                          index: index,
                         );
                       }, childCount: drinks.length),
                     ),
