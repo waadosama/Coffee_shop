@@ -4,6 +4,7 @@ import '../models/coffe_model.dart';
 
 abstract class CoffeeRemoteDataSource {
   Future<List<CoffeeModel>> getHotCoffee();
+  Future<List<CoffeeModel>> getColdDrinks();
 }
 
 class CoffeeRemoteDataSourceImpl implements CoffeeRemoteDataSource {
@@ -12,11 +13,20 @@ class CoffeeRemoteDataSourceImpl implements CoffeeRemoteDataSource {
   CoffeeRemoteDataSourceImpl(this.dio);
 
   @override
-  Future<List<CoffeeModel>> getHotCoffee() async {
+  Future<List<CoffeeModel>> getHotCoffee() {
+    return _getDrinksByType('hot');
+  }
+
+  @override
+  Future<List<CoffeeModel>> getColdDrinks() {
+    return _getDrinksByType('cold');
+  }
+
+  Future<List<CoffeeModel>> _getDrinksByType(String type) async {
     final response = await dio.get(
       '/api/coffee/v1/drinks',
       queryParameters: {
-        'type': 'hot',
+        'type': type,
       },
     );
 

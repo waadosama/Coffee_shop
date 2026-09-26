@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-import '../../../../core/network/dio_client.dart';
 import '../../../../core/theme/app_colors.dart';
-import '../cubic/cubic.dart';
-import '../pages/menu_page.dart';
-import '../../../../features/menu/data/datasources/remote.dart';
-import '../../../../features/menu/data/repositories/coffe_imp.dart';
-import '../../../../features/menu/domain/usecases/use.dart';
+import '../pages/menu_navigator.dart';
 
 // Large hero image — centered, no decorative frame
 class IntroHeroSection extends StatelessWidget {
@@ -211,19 +205,6 @@ class IntroNavigationButtons extends StatelessWidget {
   }
 
   void _navigateToMenu(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (_) => BlocProvider(
-          create: (_) {
-            final dio = DioClient().dio;
-            final remote = CoffeeRemoteDataSourceImpl(dio);
-            final repo = CoffeeRepositoryImpl(remote);
-            return CoffeeCubit(GetHotCoffee(repo))..fetchHotCoffee();
-          },
-          child: const MenuPage(),
-        ),
-      ),
-    );
+    openMenuPage(context);
   }
 }
