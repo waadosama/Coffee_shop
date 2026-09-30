@@ -3,6 +3,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../cart/presentation/cubic/cubic.dart';
+import '../../../cart/presentation/cubic/state.dart';
 import '../cubic/cubic.dart';
 import '../cubic/state.dart';
 import '../pages/menu_navigator.dart';
@@ -76,8 +78,67 @@ class MenuHeader extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(width: 8),
+        const CartBadgeButton(),
       ],
     );
+  }
+}
+
+/// Cart icon with the live item count. Tapping it shows a short summary of
+/// what is currently in the cart (count and total in EGP).
+class CartBadgeButton extends StatelessWidget {
+  const CartBadgeButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CartCubit, CartState>(
+      builder: (context, state) {
+        return Badge(
+          isLabelVisible: state.totalCount > 0,
+          label: Text('${state.totalCount}'),
+          backgroundColor: AppColors.darkEspresso,
+          child: IconButton(
+            onPressed: () => _showCartSummary(context, state),
+            icon: const Icon(
+              Icons.shopping_cart_outlined,
+              size: 26,
+              color: AppColors.darkEspresso,
+            ),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showCartSummary(BuildContext context, CartState state) {
+    final messenger = ScaffoldMessenger.of(context);
+    final message = state.isEmpty
+        ? 'السلة فارغة — Cart is empty'
+        : '${state.totalCount} item(s) ·'
+              ' ${CartState.formattedEgp(state.totalPriceEgp)} — اضغط على'
+              ' المنتج ثم "أضف للسلة"';
+
+    messenger
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.darkEspresso,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+          content: Text(
+            message,
+            style: GoogleFonts.cairo(
+              fontSize: 13,
+              color: AppColors.creamPaper,
+            ),
+          ),
+        ),
+      );
   }
 }
 

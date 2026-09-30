@@ -10,6 +10,8 @@ A specialty coffee shop app built with **Flutter**, featuring an animated intro 
 
 - **Animated Intro Page** — Centered coffee-bag hero image with staggered entrance animations, brand title, tagline, and navigation buttons leading to the menu.
 - **Live Menu** — Drinks fetched remotely (`/api/coffee/v1/drinks?type=hot`) and displayed in a 2-column card grid.
+- **Product Details Page** — Tapping any drink opens a full-screen page with its tasting note, price in EGP, a quantity selector, and an **Add to Cart** action.
+- **Shopping Cart** — A `CartCubit` shared above the Navigator keeps the item count and EGP total; a badge in the menu header shows the live count.
 - **Clean Architecture** — Strict separation of `data`, `domain`, and `presentation` layers with repositories, use cases, and Cubit state management.
 - **Coffee Shop Theme** — Consistent espresso/pink/blue/cream palette defined in `AppColors` and `AppTheme`, with `Cairo`, `Caveat`, and `Special Elite` Google Fonts.
 - **Custom Painters** — Hand-drawn espresso machine, stamp borders, doodles, and background decorations.
@@ -27,19 +29,26 @@ lib/
 │   │   ├── app_colors.dart            # Coffee-shop color palette
 │   │   └── app_theme.dart             # Material 3 ThemeData
 │   └── usecases/usecase.dart          # Base use case contract
-└── features/menu/
-    ├── data/
-    │   ├── datasources/remote.dart    # Remote coffee data source
-    │   ├── models/coffe_model.dart    # JSON model
-    │   └── repositories/coffe_imp.dart# Repository implementation
-    ├── domain/
-    │   ├── entities/coffe.dart        # Coffee entity
-    │   ├── repositories/coffee_repo.dart # Repository contract
-    │   └── usecases/use.dart          # GetHotCoffee use case
-    └── presentation/
-        ├── cubic/                     # CoffeeCubit + CoffeeState
-        ├── pages/                     # intro_page, menu_page
-        └── widgets/                   # posters, painters, intro widgets
+└── features/
+    ├── menu/
+    │   ├── data/
+    │   │   ├── datasources/remote.dart    # Remote coffee data source
+    │   │   ├── drink_catalog.dart         # Hardcoded EGP prices + notes
+    │   │   ├── models/coffe_model.dart    # JSON model
+    │   │   └── repositories/coffe_imp.dart# Repository implementation
+    │   ├── domain/
+    │   │   ├── entities/coffe.dart        # Coffee entity (incl. priceEgp)
+    │   │   ├── repositories/coffee_repo.dart # Repository contract
+    │   │   └── usecases/use.dart          # GetHotCoffee use case
+    │   └── presentation/
+    │       ├── cubic/                     # CoffeeCubit + CoffeeState
+    │       ├── pages/                     # intro, menu, product_details
+    │       └── widgets/                   # posters, painters, cart badge
+    └── cart/
+        ├── domain/entities/cart_item.dart # Coffee + quantity line item
+        └── presentation/
+            ├── cubic/                     # CartCubit + CartState
+            └── widgets/                   # cart badge button
 ```
 
 **State flow:** `Page` → `Cubit` → `UseCase` → `Repository` → `DataSource` → `Dio`

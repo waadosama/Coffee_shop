@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:coffee_shop_app/core/network/dio_client.dart';
+import 'package:coffee_shop_app/features/cart/presentation/cubic/cubic.dart';
 import 'package:coffee_shop_app/features/menu/data/datasources/remote.dart';
 import 'package:coffee_shop_app/features/menu/data/repositories/coffe_imp.dart';
 import 'package:coffee_shop_app/features/menu/domain/usecases/use.dart';
@@ -18,10 +19,15 @@ CoffeeCubit _buildCubit() {
 }
 
 Widget _host(Widget page) {
-  return MaterialApp(
-    home: BlocProvider<CoffeeCubit>(
-      create: (_) => _buildCubit(),
-      child: page,
+  // CartCubit sits above the Navigator (as in main.dart) so pushed routes
+  // can read the shared cart.
+  return BlocProvider<CartCubit>(
+    create: (_) => CartCubit(),
+    child: MaterialApp(
+      home: BlocProvider<CoffeeCubit>(
+        create: (_) => _buildCubit(),
+        child: page,
+      ),
     ),
   );
 }

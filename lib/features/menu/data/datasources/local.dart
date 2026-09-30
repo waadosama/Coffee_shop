@@ -24,6 +24,7 @@ class BreakfastLocalDataSourceImpl implements BreakfastLocalDataSource {
       description: 'Sourdough, smashed avocado, chili flakes, lime',
       image:
           'https://images.unsplash.com/photo-1541519227354-08fa5d50c44d?auto=format&fit=crop&w=700&q=80',
+      priceEgp: 145,
     ),
     CoffeeModel(
       id: 102,
@@ -31,6 +32,7 @@ class BreakfastLocalDataSourceImpl implements BreakfastLocalDataSource {
       description: 'Flaky, buttery, baked fresh every morning',
       image:
           'https://images.unsplash.com/photo-1555507036-ab1f4038808a?auto=format&fit=crop&w=700&q=80',
+      priceEgp: 75,
     ),
     CoffeeModel(
       id: 103,
@@ -38,6 +40,7 @@ class BreakfastLocalDataSourceImpl implements BreakfastLocalDataSource {
       description: 'Three buttermilk pancakes, honey and berries',
       image:
           'https://images.unsplash.com/photo-1567620905732-2d1ec7ab7445?auto=format&fit=crop&w=700&q=80',
+      priceEgp: 130,
     ),
     CoffeeModel(
       id: 104,
@@ -45,6 +48,7 @@ class BreakfastLocalDataSourceImpl implements BreakfastLocalDataSource {
       description: 'Three eggs, cheddar, herbs, toast on the side',
       image:
           'https://images.unsplash.com/photo-1510693206972-df098062cb71?auto=format&fit=crop&w=700&q=80',
+      priceEgp: 140,
     ),
     CoffeeModel(
       id: 105,
@@ -52,6 +56,7 @@ class BreakfastLocalDataSourceImpl implements BreakfastLocalDataSource {
       description: 'Greek yogurt, granola, seasonal fruit, honey',
       image:
           'https://images.unsplash.com/photo-1511690743698-d9d85f2fbf38?auto=format&fit=crop&w=700&q=80',
+      priceEgp: 115,
     ),
     CoffeeModel(
       id: 106,
@@ -59,6 +64,7 @@ class BreakfastLocalDataSourceImpl implements BreakfastLocalDataSource {
       description: 'Eggs poached in spiced tomato, feta, warm bread',
       image:
           'https://images.unsplash.com/photo-1590301157890-4810ed352733?auto=format&fit=crop&w=700&q=80',
+      priceEgp: 155,
     ),
   ];
 }

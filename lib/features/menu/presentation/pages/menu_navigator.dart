@@ -2,13 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/network/dio_client.dart';
+import '../../../cart/presentation/cubic/cubic.dart';
 import '../../data/datasources/remote.dart';
 import '../../data/repositories/coffe_imp.dart';
+import '../../domain/entities/coffe.dart';
 import '../../domain/usecases/use.dart';
 import '../cubic/cubic.dart';
 import 'breakfast_page.dart';
 import 'cold_drinks_page.dart';
 import 'menu_page.dart';
+import 'product_details_page.dart';
 
 /// Central place that builds a page together with the [CoffeeCubit]
 /// it needs, so wiring stays identical for every menu section.
@@ -52,4 +55,14 @@ void openColdDrinksPage(BuildContext context, {bool replace = false}) {
 void openBreakfastPage(BuildContext context, {bool replace = false}) {
   _open(context, const BreakfastPage(), (cubit) => cubit.fetchBreakfast(),
       replace: replace);
+}
+
+/// Opens the product details page for one drink: tasting note, price in EGP
+/// and the add-to-cart action. The page only needs the drink itself, the
+/// shared [CartCubit] is already provided above the app.
+void openProductDetailsPage(BuildContext context, Coffee coffee) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (_) => ProductDetailsPage(coffee: coffee)),
+  );
 }
