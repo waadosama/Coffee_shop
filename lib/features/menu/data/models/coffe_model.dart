@@ -1,4 +1,5 @@
 import '../../domain/entities/coffe.dart';
+import '../drink_catalog.dart';
 
 class CoffeeModel extends Coffee {
   const CoffeeModel({
@@ -6,36 +7,33 @@ class CoffeeModel extends Coffee {
     required super.name,
     required super.description,
     required super.image,
+    required super.priceEgp,
   });
 
   factory CoffeeModel.fromJson(Map<String, dynamic> json) {
     final rawId = json['id'];
     final ingredients = json['ingredients'];
-    final price = json['price'];
-    final description =
-        json['description']?.toString() ??
-        (ingredients is List
-            ? ingredients.join(', ')
-            : price == null
-            ? ''
-            : 'Hot coffee - \$${_formatPrice(price)}');
     final name = (json['name'] ?? json['title'] ?? 'Coffee').toString();
+
+    // The API description is optional; when it is missing we fall back to
+    // the ingredients, then to the shop's own tasting note.
+    final apiDescription = json['description']?.toString().trim();
+    final String description;
+    if (apiDescription != null && apiDescription.isNotEmpty) {
+      description = apiDescription;
+    } else if (ingredients is List && ingredients.isNotEmpty) {
+      description = ingredients.join(', ');
+    } else {
+      description = DrinkCatalog.noteFor(name);
+    }
 
     return CoffeeModel(
       id: rawId is int ? rawId : int.tryParse('$rawId') ?? 0,
       name: name,
       description: description,
       image: _imageFromJson(json, name),
+      priceEgp: DrinkCatalog.priceEgpFor(name),
     );
-  }
-
-  static String _formatPrice(dynamic price) {
-    final value = price is num ? price : num.tryParse('$price');
-    if (value == null) {
-      return '$price';
-    }
-
-    return value % 1 == 0 ? value.toInt().toString() : value.toStringAsFixed(2);
   }
 
   static String _imageFromJson(Map<String, dynamic> json, String name) {

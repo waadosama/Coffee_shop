@@ -3,6 +3,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import '../../../../core/theme/app_colors.dart';
+import '../../../cart/presentation/cart_navigator.dart';
+import '../../../cart/presentation/cubic/cubic.dart';
+import '../../../cart/presentation/cubic/state.dart';
 import '../cubic/cubic.dart';
 import '../cubic/state.dart';
 import '../pages/menu_navigator.dart';
@@ -76,7 +79,38 @@ class MenuHeader extends StatelessWidget {
             ],
           ),
         ),
+        const SizedBox(width: 8),
+        const CartBadgeButton(),
       ],
+    );
+  }
+}
+
+/// Cart icon with the live item count. Tapping it opens the full cart page
+/// with the line items, the quantity steppers and the EGP total.
+class CartBadgeButton extends StatelessWidget {
+  const CartBadgeButton({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<CartCubit, CartState>(
+      builder: (context, state) {
+        return Badge(
+          isLabelVisible: state.totalCount > 0,
+          label: Text('${state.totalCount}'),
+          backgroundColor: AppColors.darkEspresso,
+          child: IconButton(
+            onPressed: () => openCartPage(context),
+            icon: const Icon(
+              Icons.shopping_cart_outlined,
+              size: 26,
+              color: AppColors.darkEspresso,
+            ),
+            padding: EdgeInsets.zero,
+            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
+          ),
+        );
+      },
     );
   }
 }
