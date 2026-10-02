@@ -42,7 +42,7 @@ class MenuHeader extends StatelessWidget {
           width: 52,
           height: 52,
           decoration: const BoxDecoration(
-            color: Color.fromARGB(255, 66, 31, 5),
+            color: AppColors.darkInk,
             shape: BoxShape.circle,
           ),
           child: ClipOval(
@@ -197,12 +197,7 @@ class MenuShell extends StatelessWidget {
                               'coffee machine pause.',
                               style: GoogleFonts.caveat(
                                 fontSize: 32,
-                                color: const Color.fromARGB(
-                                  255,
-                                  233,
-                                  186,
-                                  169,
-                                ),
+                                color: AppColors.darkEspresso,
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -211,7 +206,7 @@ class MenuShell extends StatelessWidget {
                               textAlign: TextAlign.center,
                               style: GoogleFonts.cairo(
                                 fontSize: 13,
-                                color: const Color.fromARGB(255, 79, 41, 22),
+                                color: AppColors.coffeeLight,
                               ),
                             ),
                             const SizedBox(height: 16),

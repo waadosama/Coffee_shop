@@ -8,12 +8,12 @@ A specialty coffee shop app built with **Flutter**, featuring an animated intro 
 
 ## ✨ Features
 
-- **Animated Intro Page** — Centered coffee-bag hero image with staggered entrance animations, brand title, tagline, and navigation buttons leading to the menu.
+- **Animated Intro Page** — A roastery "label" poster: coffee-bag hero inside an arched window, a rotating wax-seal stamp biting into the paper card, a halftone/sunburst printed backdrop, staggered entrance animations, brand title, tagline, and navigation buttons leading to the menu.
 - **Live Menu** — Drinks fetched remotely (`/api/coffee/v1/drinks?type=hot`) and displayed in a 2-column card grid.
 - **Product Details Page** — Tapping any drink opens a full-screen page with its tasting note, price in EGP, a quantity selector, and an **Add to Cart** action.
 - **Shopping Cart** — A `CartCubit` shared above the Navigator keeps the item count and EGP total; a badge in the menu header shows the live count and opens the **Cart page**, which lists every line with a quantity stepper, the EGP subtotal/total, a clear-all action, and checkout.
 - **Clean Architecture** — Strict separation of `data`, `domain`, and `presentation` layers with repositories, use cases, and Cubit state management.
-- **Coffee Shop Theme** — Consistent espresso/pink/blue/cream palette defined in `AppColors` and `AppTheme`, with `Cairo`, `Caveat`, and `Special Elite` Google Fonts.
+- **Coffee Shop Theme** — Consistent rust & butter palette defined in `AppColors` and `AppTheme`, with `Cairo`, `Caveat`, and `Special Elite` Google Fonts.
 - **Custom Painters** — Hand-drawn espresso machine, stamp borders, doodles, and background decorations.
 - **Loading & Error States** — Animated "energy loading" poster while fetching, plus a retry flow on failure.
 
@@ -58,13 +58,19 @@ lib/
 
 ## 🎨 Theme
 
+The palette is a **rust & butter** scheme sampled from the reference cup
+artwork — a warm rust-brown frame, pale butter-yellow sheets, golden accents
+and warm white highlights. Every screen reads its colors from `AppColors`, so
+retinting the whole app is a matter of editing that one file.
+
 | Token | Hex | Usage |
 |-------|-----|-------|
-| `darkEspresso` | `#422E27` | Primary backgrounds & text |
-| `pastelPink` | `#EAD2DA` | Accent, buttons, brand name |
-| `powderBlue` | `#AAC0CF` | Secondary accent |
-| `creamPaper` | `#F2EADD` | Surfaces & cards |
-| `darkInk` | `#2E1E1A` | Deep contrast |
+| `darkEspresso` | `#8C4527` | Rust frame, primary text & filled buttons |
+| `pastelPink` | `#F3DB96` | Golden accent — CTAs, price chips |
+| `powderBlue` | `#FBF6E6` | Warm white — poster, on-dark outlines |
+| `creamPaper` | `#F8F0C6` | Pale butter sheets & light text on rust |
+| `warmCream` | `#F1E7A9` | Deeper butter for tiles, notes & chips |
+| `darkInk` | `#4E2313` | Deepest roast — strongest contrast |
 
 Fonts: **Cairo** (primary/UI), **Caveat** (display), **Special Elite** (labels).
 

@@ -13,7 +13,7 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.creamBackground,
       colorScheme: const ColorScheme.light(
         primary: AppColors.kaveaOrange,
-        onPrimary: Color(0xFFFBF6EC),
+        onPrimary: AppColors.darkCoffee,
         secondary: AppColors.stripeBlue,
         onSecondary: AppColors.darkCoffee,
         surface: AppColors.cardSurface,
