@@ -22,3 +22,8 @@ windows/
 *.apk
 *.aab
 *.app
+
+# Local environment files — copy the .example next to each one
+.env
+assets/.env
+serviceAccountKey.json

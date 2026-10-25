@@ -5,14 +5,21 @@
  * the trusted party that holds the FCM server credentials and turns the order
  * into the "your order is ready to be prepared" push notification.
  *
- * Credentials come from, in order of preference:
- *   1. SERVICE_ACCOUNT_KEY  — path to a downloaded service-account JSON file
- *   2. GOOGLE_APPLICATION_CREDENTIALS — standard Google ADC wiring
- *   3. gcloud application-default credentials
- * See README.md in this folder for how to produce #1.
+ * Configuration lives in backend/.env (see .env.example), in order of
+ * preference for credentials:
+ *   1. SERVICE_ACCOUNT_JSON   — the whole service-account key, one line
+ *   2. SERVICE_ACCOUNT_KEY    — path to the downloaded key file
+ *   3. GOOGLE_APPLICATION_CREDENTIALS — path, standard Google wiring
+ *   4. gcloud application-default credentials
+ * See README.md in this folder for how to produce the key.
  */
 
+const fs = require('fs');
 const path = require('path');
+
+// Loads backend/.env (PORT, SERVICE_ACCOUNT_KEY, ...). Values already present
+// in the shell win, so `PORT=9000 npm start` still overrides the file.
+require('dotenv').config();
 
 const admin = require('firebase-admin');
 const cors = require('cors');
@@ -22,14 +29,32 @@ const PORT = Number(process.env.PORT || 8080);
 
 let firebaseError = null;
 try {
-  const keyPath = process.env.SERVICE_ACCOUNT_KEY;
-  if (keyPath) {
+  const inlineJson = process.env.SERVICE_ACCOUNT_JSON;
+  const keyPath =
+    process.env.SERVICE_ACCOUNT_KEY || process.env.GOOGLE_APPLICATION_CREDENTIALS;
+
+  if (inlineJson) {
+    // Whole key pasted into .env as a single line.
     admin.initializeApp({
-      credential: admin.credential.cert(require(path.resolve(keyPath))),
+      credential: admin.credential.cert(JSON.parse(inlineJson)),
     });
+    console.log('[startup] credentials: SERVICE_ACCOUNT_JSON (.env)');
+  } else if (keyPath) {
+    // Path to the downloaded service-account JSON file.
+    const resolved = path.resolve(keyPath);
+    if (!fs.existsSync(resolved)) {
+      throw new Error(
+        `SERVICE_ACCOUNT_KEY points to a file that does not exist: ${resolved}`,
+      );
+    }
+    admin.initializeApp({
+      credential: admin.credential.cert(require(resolved)),
+    });
+    console.log(`[startup] credentials: ${resolved}`);
   } else {
-    // Falls back to GOOGLE_APPLICATION_CREDENTIALS / ADC.
+    // Falls back to application default credentials (gcloud ADC).
     admin.initializeApp();
+    console.log('[startup] credentials: application default credentials');
   }
 } catch (error) {
   firebaseError = error.message;
@@ -59,7 +84,7 @@ app.post('/api/orders', async (req, res) => {
   if (firebaseError) {
     return res.status(503).json({
       ok: false,
-      error: 'Firebase Admin is not configured — see backend/README.md',
+      error: 'Firebase Admin is not configured - see backend/README.md',
       detail: firebaseError,
     });
   }

@@ -3,7 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
-import '../../firebase_options.dart';
+import '../firebase/firebase_env.dart';
 
 /// Firebase Cloud Messaging bootstrap.
 ///
@@ -41,9 +41,9 @@ class FcmService {
 
   /// Must be called once, before `runApp`.
   static Future<void> init() async {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    // assets/.env is the only source of Firebase options — see FirebaseEnv.
+    await FirebaseEnv.load();
+    await Firebase.initializeApp(options: FirebaseEnv.options);
 
     FirebaseMessaging.onBackgroundMessage(_onBackgroundMessage);
 
@@ -71,9 +71,9 @@ class FcmService {
   /// this only has to make Firebase reachable from this isolate.
   @pragma('vm:entry-point')
   static Future<void> _onBackgroundMessage(RemoteMessage message) async {
-    await Firebase.initializeApp(
-      options: DefaultFirebaseOptions.currentPlatform,
-    );
+    // A background isolate has its own dotenv state, so load it again here.
+    await FirebaseEnv.load();
+    await Firebase.initializeApp(options: FirebaseEnv.options);
     debugPrint('FCM background message received: ${message.messageId}');
   }
 

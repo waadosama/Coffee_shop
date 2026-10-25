@@ -25,6 +25,7 @@ A specialty coffee shop app built with **Flutter**, featuring an animated intro 
 lib/
 ├── main.dart                          # App entry point (FCM init → IntroPage → MenuPage)
 ├── core/
+│   ├── firebase/firebase_env.dart    # Reads assets/.env (Firebase options)
 │   ├── network/dio_client.dart        # Dio HTTP client (funapi.dev)
 │   ├── notifications/fcm_service.dart # Firebase Cloud Messaging bootstrap
 │   ├── theme/
@@ -84,15 +85,42 @@ checkout tap ──► OrderDraft (snapshot) ──► CartCubit.placeOrder
 
 The app never holds the FCM server key — it only holds a device token.
 
-1. **App** — `FcmService.init()` (called before `runApp`) requests
-   notification permission, creates the `order_updates` channel, keeps the
-   device token and renders messages that arrive while the app is open.
+1. **App** — `FcmService.init()` (called before `runApp`) loads the Firebase
+   options from `assets/.env` — the only place they are written — then
+   requests notification permission, creates the `order_updates` channel,
+   keeps the device token and renders messages that arrive while the app is
+   open.
 2. **Backend** (`backend/`) — Express + `firebase-admin` service that turns
    `POST /api/orders` into the push. Setup is in [`backend/README.md`](backend/README.md).
 3. **Point the app at it** with `--dart-define=ORDER_API_BASE=…`
    (defaults to `http://10.0.2.2:8080`, the host machine from the emulator).
 
-Firebase project: `coffee-shop-roknn` (config in `lib/firebase_options.dart`,
+### Where credentials/config live
+
+| File | Holds | In git? |
+|------|-------|---------|
+| `assets/.env` (copy `assets/.env.example`) | Firebase options the app boots with | ❌ ignored |
+| `backend/.env` (copy `backend/.env.example`) | `PORT` + the FCM service-account key | ❌ ignored |
+| `backend/serviceAccountKey.json` | the key file itself | ❌ ignored |
+| `android/app/google-services.json` | same ids for the Android SDK | ❌ inside ignored `android/` |
+| build flags | `ORDER_API_BASE` for the app | — |
+
+`FirebaseEnv` is the single source of Firebase options: `load()` reads
+`assets/.env`, and `options` names every missing key instead of booting
+Firebase half-configured. The FlutterFire-generated `lib/firebase_options.dart`
+has been removed — if you ever re-run `flutterfire configure`, that generated
+Dart file can simply be deleted again (only `google-services.json` is still
+needed by the Android SDK).
+
+Dart has no runtime `.env` loader for build settings — `ORDER_API_BASE` is a
+build-time define. To keep it in a file rather than typing it:
+
+```bash
+# config/env.local.json  →  {"ORDER_API_BASE":"http://192.168.1.10:8080"}
+flutter run --dart-define-from-file=config/env.local.json
+```
+
+Firebase project: `coffee-shop-roknn` (options in `assets/.env`,
 Android app id `com.roknn.coffee_shop_app`).
 
 ---
@@ -129,9 +157,13 @@ Fonts: **Cairo** (primary/UI), **Caveat** (display), **Special Elite** (labels).
 ### Installation
 
 ```bash
+cp assets/.env.example assets/.env     # Firebase options for the app
+cp backend/.env.example backend/.env   # port + FCM service-account key
+
 flutter pub get
-flutter run                                   # the app
-cd backend && npm install && npm start        # FCM order notifications
+flutter run                            # the app
+
+cd backend && npm install && npm start # FCM order notifications
 ```
 
 The app talks to the backend at `http://10.0.2.2:8080` (your machine seen
@@ -160,9 +192,10 @@ flutter analyze
 | `equatable` | Value equality |
 | `flutter_riverpod` | DI (available) |
 | `cupertino_icons` | iOS-style icons |
-| `firebase_core` | Firebase bootstrap (`lib/firebase_options.dart`) |
+| `firebase_core` | Firebase bootstrap (options come from `assets/.env`) |
 | `firebase_messaging` | FCM device token + incoming pushes |
 | `flutter_local_notifications` | Shows FCM messages while the app is open |
+| `flutter_dotenv` | Reads `assets/.env` (Firebase options) at startup |
 
 The backend in `backend/` is plain Node: `express`, `cors`, `firebase-admin`.
 

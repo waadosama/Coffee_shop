@@ -7,25 +7,43 @@ through Firebase Cloud Messaging.
 The app itself never sees the FCM server key: it only holds a device token,
 so sending stays here where credentials are safe.
 
-## 1. One-time Firebase setup
+## 1. Configure it with `.env`
 
-The service authenticates with a **service account**. Pick one:
+```bash
+cd backend
+cp .env.example .env
+```
+
+`.env` is gitignored — that is where credentials belong.
+
+```dotenv
+PORT=8080
+
+# pick ONE credential block:
+SERVICE_ACCOUNT_KEY=./serviceAccountKey.json     # A) path to the key file
+# SERVICE_ACCOUNT_JSON={"type":"service_account",…}  # B) whole key inline
+# GOOGLE_APPLICATION_CREDENTIALS=C:/keys/key.json   # C) gcloud ADC
+```
+
+Produce the key either way:
 
 **Option A — download a key (simplest)**
 
 1. Firebase console → ⚙ Project settings → *Service accounts*
-2. *Generate new private key* → save the JSON
-3. Keep it out of git (`backend/.gitignore` already ignores it):
-
-```bash
-# Windows PowerShell
-$env:SERVICE_ACCOUNT_KEY = "C:\path\to\serviceAccountKey.json"
-```
+2. *Generate new private key* → save the JSON as `backend/serviceAccountKey.json`
+3. Already listed in `.env`, nothing else to change.
 
 **Option B — application default credentials**
 
 ```bash
 gcloud auth application-default login
+# then comment out SERVICE_ACCOUNT_KEY in .env
+```
+
+The server logs which source it used:
+
+```
+[startup] credentials: E:\...\backend\serviceAccountKey.json
 ```
 
 ## 2. Run it
