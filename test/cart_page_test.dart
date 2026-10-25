@@ -175,6 +175,59 @@ void main() {
 
     expect(cart.state.isEmpty, isTrue);
     expect(find.byType(CartPage), findsNothing);
+
+    // The "order placed" notification pops up over the menu with the
+    // order summary and the ready-to-prepare message.
+    expect(find.byType(AlertDialog), findsOneWidget);
+    expect(find.text('تم استلام طلبك!'), findsOneWidget);
+    expect(find.text('طلبك جاهز للتحضير'), findsOneWidget);
+    expect(find.text('2 item(s), 140 EGP'), findsOneWidget);
+
+    // Dismissing the dialog hands over to the receipt-style snackbar.
+    await tester.tap(find.text('تمام'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(find.textContaining('order placed'), findsOneWidget);
+
+    await _settleSnackbar(tester);
+  });
+
+  testWidgets('tapping outside the confirmation still shows the snackbar',
+      (tester) async {
+    final cart = CartCubit()..add(_latte);
+
+    await tester.pumpWidget(
+      _host(
+        cart,
+        home: Scaffold(
+          body: Builder(
+            builder: (context) => Center(
+              child: ElevatedButton(
+                onPressed: () => openCartPage(context),
+                child: const Text('open cart'),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('open cart'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('إتمام الطلب'));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsOneWidget);
+
+    // Barrier tap (dismissable dialog).
+    await tester.tapAt(const Offset(4, 4));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(AlertDialog), findsNothing);
+    expect(cart.state.isEmpty, isTrue);
     expect(find.textContaining('order placed'), findsOneWidget);
 
     await _settleSnackbar(tester);

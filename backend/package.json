@@ -1,0 +1,18 @@
+{
+  "name": "coffee-shop-order-backend",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Order endpoint that pushes the FCM 'your order is ready to be prepared' notification.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.2",
+    "firebase-admin": "^13.4.0"
+  }
+}

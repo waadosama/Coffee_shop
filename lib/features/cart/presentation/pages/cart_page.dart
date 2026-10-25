@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:google_fonts/google_fonts.dart';
 
+import '../../../../core/notifications/fcm_service.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../domain/entities/cart_item.dart';
+import '../../domain/entities/order_draft.dart';
 import '../cubic/cubic.dart';
 import '../cubic/state.dart';
 
@@ -474,38 +478,179 @@ class _SummaryBar extends StatelessWidget {
     );
   }
 
-  /// Confirms the order, empties the cart and returns to the menu with a
-  /// short receipt-style message.
-  void _checkout(BuildContext context) {
+  /// Confirms the order, empties the cart, returns to the menu and notifies
+  /// the customer that the order was placed and is ready to be prepared.
+  ///
+  /// The confirmation dialog is the headline notification; once it is
+  /// dismissed the short receipt-style snackbar takes over.
+  Future<void> _checkout(BuildContext context) async {
     final cart = context.read<CartCubit>();
     final navigator = Navigator.of(context);
     final messenger = ScaffoldMessenger.of(context);
     final summary =
         '${state.totalCount} item(s),'
         ' ${CartState.formattedEgp(state.totalPriceEgp)}';
+    // Snapshotted before the cart is emptied, because the backend needs the
+    // lines and the total to push the FCM notification.
+    final draft = OrderDraft.fromItems(state.items);
 
     cart.clear();
+    messenger.hideCurrentSnackBar();
 
-    messenger
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        SnackBar(
-          backgroundColor: AppColors.darkEspresso,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+    // Leave the cart first so the notification lands on the menu page. This
+    // has to be the synchronous [NavigatorState.pop] (rather than maybePop,
+    // which only decides after an await): the dialog pushed below would land
+    // in the history before maybePop gets to it and cancel the pop.
+    // The cart route keeps animating out, so its context stays valid for the
+    // few lines it takes to push the dialog on top of it.
+    if (navigator.canPop()) {
+      navigator.pop();
+    }
+
+    // Fire the backend call that makes FCM push "order ready to prepare" to
+    // this device — deliberately not awaited so a slow server can never hold
+    // up the confirmation dialog.
+    unawaited(cart.placeOrder(draft, fcmToken: FcmService.token));
+
+    await _showOrderPlacedDialog(context, summary: summary);
+
+    messenger.showSnackBar(
+      SnackBar(
+        backgroundColor: AppColors.darkEspresso,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(10),
+        ),
+        content: Text(
+          'تم تأكيد طلبك — order placed: $summary',
+          style: GoogleFonts.cairo(
+            fontSize: 13,
+            color: AppColors.creamPaper,
           ),
-          content: Text(
-            'تم تأكيد طلبك — order placed: $summary',
-            style: GoogleFonts.cairo(
-              fontSize: 13,
+        ),
+      ),
+    );
+  }
+
+  /// The "order placed" notification: a themed success dialog telling the
+  /// customer their order is ready to be prepared, with the order summary.
+  Future<void> _showOrderPlacedDialog(
+    BuildContext context, {
+    required String summary,
+  }) {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: true,
+      builder: (dialogContext) {
+        return AlertDialog(
+          backgroundColor: AppColors.creamPaper,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          icon: Container(
+            width: 56,
+            height: 56,
+            decoration: BoxDecoration(
+              color: AppColors.darkEspresso,
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.check_rounded,
+              size: 34,
               color: AppColors.creamPaper,
             ),
           ),
-        ),
-      );
-
-    navigator.maybePop();
+          title: Text(
+            'تم استلام طلبك!',
+            textDirection: TextDirection.rtl,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.cairo(
+              fontSize: 20,
+              fontWeight: FontWeight.w800,
+              color: AppColors.darkEspresso,
+            ),
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'طلبك جاهز للتحضير',
+                textDirection: TextDirection.rtl,
+                textAlign: TextAlign.center,
+                style: GoogleFonts.cairo(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                  height: 1.5,
+                  color: AppColors.coffeeLight,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'your order is ready to be prepared.',
+                textAlign: TextAlign.center,
+                style: GoogleFonts.caveat(
+                  fontSize: 19,
+                  fontWeight: FontWeight.w600,
+                  color: AppColors.textMuted,
+                ),
+              ),
+              const SizedBox(height: 14),
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.warmCream,
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.darkEspresso.withValues(alpha: 0.15),
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Icon(
+                      Icons.receipt_long,
+                      size: 20,
+                      color: AppColors.coffeeLight,
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Text(
+                        summary,
+                        textDirection: TextDirection.rtl,
+                        textAlign: TextAlign.end,
+                        style: GoogleFonts.specialElite(
+                          fontSize: 13,
+                          letterSpacing: 0.8,
+                          color: AppColors.darkEspresso,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: Text(
+                'تمام',
+                textDirection: TextDirection.rtl,
+                style: GoogleFonts.cairo(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: AppColors.darkEspresso,
+                ),
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 }
 
